@@ -1,202 +1,379 @@
-That is exactly the right mindset! Relying on the frontend for a smooth User Experience, and relying on the backend for absolute Data Integrity is the hallmark of a Senior Full-Stack Engineer. 
+Problem Description
+swap_horiz
+Capstone Project - Event Management and Resource Allocation Platform
+03:00
+Hard
+Overview
 
-Here are the completely updated files with the architectural fixes applied. You can copy and paste these directly into your project.
+A comprehensive system for organizing and streamlining event planning activities, including task assignment, resource allocation, and client interaction, ensuring a seamless execution of events.
 
-### 1. `ResourceService.java` (The Backend Gatekeeper)
-*Location: `server/src/main/java/com/edutech/eventmanagementsystem/service/ResourceService.java`*
+Users of the System
 
-```java
-package com.edutech.eventmanagementsystem.service;
+- **Event Planners**: Organize events, manage resources, and communicate with clients.
 
-import com.edutech.eventmanagementsystem.entity.Allocation;
-import com.edutech.eventmanagementsystem.entity.Event;
-import com.edutech.eventmanagementsystem.entity.Resource;
-import com.edutech.eventmanagementsystem.repository.AllocationRepository;
-import com.edutech.eventmanagementsystem.repository.EventRepository;
-import com.edutech.eventmanagementsystem.repository.ResourceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+- **Venue Staff**: Oversee venue preparation, maintenance, and scheduling.
 
-import java.util.ArrayList;
-import java.util.List;
+- **Clients**: Book events, provide specifications, and receive updates.
 
-@Service
-public class ResourceService {
 
-    @Autowired
-    private ResourceRepository resourceRepository;
 
-    @Autowired
-    private EventRepository eventRepository;
+Functional Requirements
 
-    @Autowired
-    private AllocationRepository allocationRepository;
+- **User Registration & Profile Management**: Users sign up, log in, and manage profiles with data validation and secure handling of information.
 
-    public Resource addResource(Resource resource) {
-        return resourceRepository.save(resource);
-    }
+- **Event Scheduling & Management**: Planners create, update, and manage event details, with authorization for modifications.
 
-    public List<Resource> getAllResources() {
-        return resourceRepository.findAll();
-    }
+- **Resource Allocation to Events**: Allocate resources like staff, equipment, and venues to specific events.
 
-    public List<Allocation> getAllAllocations() {
-        return allocationRepository.findAll();
-    }
+- **Client Interaction Interface**: Clients can view event progress and communicate with planners.
 
-    // THE SIGNATURE: It explicitly requires an 'int quantity'
-    public Allocation allocateResource(Long eventId, Long resourceId, int quantity) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-        Resource resource = resourceRepository.findById(resourceId)
-                .orElseThrow(() -> new RuntimeException("Resource not found"));
+- **User Role-Based Authentication**: System identifies user roles to provide role-specific interfaces and functionalities.
 
-        // DEFENSE IN DEPTH: Backend Validation to prevent negative inventory
-        if (quantity > resource.getQuantity()) {
-            throw new RuntimeException("Insufficient inventory. Only " + resource.getQuantity() + " items available.");
-        }
+- **JWT Authorization**: Manages user sessions and secures API calls.
 
-        Allocation allocation = new Allocation();
-        allocation.setEvent(event);
-        allocation.setResource(resource);
-        allocation.setQuantity(quantity);
+- **RESTful API & Angular Service Layer**: Angular services interact with backend RESTful APIs for data exchange and UI updates.
 
-        // Deduct the allocated amount from the inventory safely
-        int remainingQuantity = resource.getQuantity() - quantity;
-        resource.setQuantity(remainingQuantity);
 
-        // Only mark as unavailable if we completely run out of stock 
-        if (remainingQuantity == 0) {
-            resource.setAvailability(false);
-        }
-        resourceRepository.save(resource);
 
-        if (event.getAllocations() == null) {
-            event.setAllocations(new ArrayList<>());
-        }
-        event.getAllocations().add(allocation);
-        eventRepository.save(event);
+Technology Stack
 
-        return allocationRepository.save(allocation);
-    }
-}
-```
+- **Backend**: Spring Boot, JPA, MySQL
 
-### 2. `Event.java` (The JSON Loop Fix)
-*Location: `server/src/main/java/com/edutech/eventmanagementsystem/entity/Event.java`*
+- **Frontend**: Angular
 
-```java
-package com.edutech.eventmanagementsystem.entity;
+- **Security**: Spring Security, JWT
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
 
-@Entity
-@Table(name = "events")
-public class Event {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonProperty("eventID")
-    private Long eventID;
-    
-    private String title;
-    private String description;
-    private String location;
-    private String status;
-    
-    // Kept as Date to match your original architecture perfectly
-    private Date dateTime; 
 
-    // CRITICAL FIX: Prevents StackOverflowError during JSON serialization
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("event")
-    private List<Allocation> allocations;
+Key Points to Note
 
-    // --- Capacity Engine Fields ---
-    private Integer maxCapacity = 100;
-    private Integer bookedCount = 0;
+- **Security**: Ensure data and API access are secured, especially personal client information.
 
-    public Event() {}
+- **Scalability**: Capable of scaling for large events and increasing user base.
 
-    // Core Getters & Setters
-    public Long getEventID() { return eventID; }
-    public void setEventID(Long eventID) { this.eventID = eventID; }
+- **User Interface Consistency**: Consistent UI/UX across various modules.
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+- **Best Practices**: Adhere to coding best practices and ensure code maintainability.
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
 
-    public Date getDateTime() { return dateTime; }
-    public void setDateTime(Date dateTime) { this.dateTime = dateTime; }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+Backend Functionalities to be Built:-
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 
-    public List<Allocation> getAllocations() { return allocations; }
-    public void setAllocations(List<Allocation> allocations) { this.allocations = allocations; }
 
-    // Capacity Getters & Setters
-    public Integer getMaxCapacity() { return maxCapacity; }
-    public void setMaxCapacity(Integer maxCapacity) { this.maxCapacity = maxCapacity; }
+- **User Management**: Build endpoints for user registration, login, and profile management.
 
-    public Integer getBookedCount() { return bookedCount; }
-    public void setBookedCount(Integer bookedCount) { this.bookedCount = bookedCount; }
-}
-```
+- **Event Management**: CRUD operations for event details, ensuring data integrity.
 
-### 3. `Notification.java` (The Angular Boolean Fix)
-*Location: `server/src/main/java/com/edutech/eventmanagementsystem/entity/Notification.java`*
+- **Resource Management**: Track and assign resources to events, manage inventory.
 
-```java
-package com.edutech.eventmanagementsystem.entity;
+- **Role-Based Authentication**: Define access levels for planners, staff, and clients.
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.*;
-import java.util.Date;
+- **JWT Token Management**: Handle token generation, validation, and expiration.
 
-@Entity
-public class Notification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+- Angular: Use Reactive form and declare form with name itemForm
 
-    private String message;
-    private String targetRole;
-    
-    // THE FIX: java.util.Date automatically formats to perfect local time in Angular!
-    private Date timestamp = new Date(); 
-    
-    // NEW FEATURE: Read Status
-    // CRITICAL FIX: Forces Jackson to output {"isRead": false} so Angular can read it perfectly
-    @JsonProperty("isRead")
-    private boolean isRead = false; 
+- Angular: Create a service with name AuthService and add these functions saveToken,SetRole,getRole,getLoginStatus,getToken,logout
 
-    public Notification() {}
-    
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-    
-    public String getTargetRole() { return targetRole; }
-    public void setTargetRole(String targetRole) { this.targetRole = targetRole; }
-    
-    public Date getTimestamp() { return timestamp; }
-    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
-    
-    public boolean getIsRead() { return isRead; }
-    public void setIsRead(boolean isRead) { this.isRead = isRead; }
-}
-```
+- Angular: Create a service with name HttpService and add these functions getOrderStatus ,updateCargoStatus,assignDriver,getAssignOrders,getCargo,getDrivers,addCargo,Login,registerUser
 
-Once you save these files, restart your Spring Boot server. Your `app.component.ts` will instantly start properly counting unread notifications, your database will never dip into negative inventory, and the Event endpoints will load flawlessly without infinite loops!
+
+
+Your task is to complete the following backend files:
+
+
+
+- `./src/main/java/com/edutech/eventmanagementsystem/config/SecurityConfig.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/controller/ClientController.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/controller/EventPlannerController.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/controller/RegisterAndLoginController.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/controller/StaffController.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/entity/Allocation.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/entity/Event.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/entity/Resource.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/entity/User.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/jwt/JwtRequestFilter.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/jwt/JwtUtil.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/repository/AllocationRepository.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/repository/EventRepository.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/repository/ResourceRepository.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/repository/UserRepository.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/service/EventService.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/service/ResourceService.java`
+
+- `./src/main/java/com/edutech/eventmanagementsystem/service/UserService.java`
+
+
+
+Entity Classes and their properties
+
+1. User
+
+   - Long userID (should be auto-generated and primary key)
+
+   - String username
+
+   - String password
+
+   - String email
+
+   - String role // role should be either "PLANNER", "STAFF" or "CLIENT"
+
+
+
+2. Event
+
+   - Long eventID (should be auto-generated and primary key)
+
+   - String title
+
+   - String description
+
+   - Date dateTime
+
+   - String location
+
+   - String status
+
+   - List allocations
+
+
+
+3. Allocation
+
+   - Long allocationID (should be auto-generated and primary key)
+
+   - Event event
+
+   - Resource resource
+
+   - int quantity
+
+   
+
+4. Resource
+
+   - Long resourceID (should be auto-generated and primary key)
+
+   - String name
+
+   - String type
+
+   - boolean availability
+
+
+
+-> Manage the relationships between entities using appropriate annotations.
+
+-> generate constructors, getters, and setters for the Property class as per standard Java conventions.
+
+-> For example: getUserID(), setUserID(Long userID) etc.
+
+
+
+API Endpoints
+
+
+
+For Event Planners (Admin Side):
+
+
+
+- Register Planner: `POST /api/user/register`
+
+- Login Planner: `POST /api/user/login`
+
+- Create Event: `POST /api/planner/event`
+
+- View Events: `GET /api/planner/events`
+
+- Add Resource: `POST:/api/planner/resource`
+
+- Get Resources: `Get:/api/planner/resources`
+
+- Allocate Resources: `POST api/planner/allocate-resources?eventId=&resourceId=`
+
+
+
+For Venue Staff and Clients (User Side):
+
+
+
+- Register User: `POST /api/user/register`
+
+- Login User: `POST /api/user/login`
+
+- View Event Details: `GET /api/staff/event-details/{eventId}`
+
+- Update Event Setup: `PUT /api/staff/update-setup/{eventId}`
+
+- View Booking Details: `GET/api/client/booking-details/{eventId}`
+
+
+
+Security Configurations to be Implemented
+
+Set the following security configurations in the `SecurityConfig.java` file:
+
+- /api/user/register: accessible to everyone
+
+- /api/user/login: accessible to everyone
+
+- /api/planner/event: accessible to PLANNER authority
+
+- /api/planner/events: accessible to PLANNER authority
+
+- /api/planner/resource: accessible to PLANNER authority
+
+- /api/planner/resources: accessible to PLANNER authority
+
+- /api/planner/allocate-resources: accessible to PLANNER authority
+
+- /api/staff/event-details/{eventId}: accessible to STAFF authority
+
+- /api/staff/update-setup/{eventId}: accessible to STAFF authority
+
+- /api/client/booking-details/{eventId}: accessible to CLIENT authority
+
+- any other route: accessible to authenticated users
+
+
+
+Check the permissions with respect to authority such as hasAuthority("PLANNER") or hasAuthority("STAFF") or hasAuthority("CLIENT").
+
+If a user tries to access a route without the required authority, return a 403 Forbidden status.
+
+
+
+
+
+Frontend Functionalities to be Built
+
+
+
+- **Registration and Profile Management**: User-friendly registration and profile management for all user types.
+
+- **Event Dashboard**: Tools for planners to manage events and resources.
+
+- **Resource Allocation Interface**: Interface for planners to allocate resources to different events.
+
+- **Client Communication Interface**: Portal for clients to interact and get updates.
+
+- **Role-Specific UI Elements**: Tailor the UI to display options relevant to each role.
+
+- **Session Management with JWT**: Implement JWT token handling for session management.
+
+
+
+Your task is to complete the following frontend files:
+
+
+
+- `./src/app/add-resource/add-resource.component.ts`
+
+- `./src/app/add-resource/add-resource.component.html`
+
+- `./src/app/booking-details/booking-details.component.ts`
+
+- `./src/app/booking-details/booking-details.component.html`
+
+- `./src/app/create-event/create-event.component.ts`
+
+- `./src/app/create-event/create-event.component.html`
+
+- `./src/app/resource-allocate/resource-allocate.component.ts`
+
+- `./src/app/resource-allocate/resource-allocate.component.html`
+
+- `./src/app/view-events/view-events.component.ts`
+
+- `./src/app/view-events/view-events.component.html`
+
+- `./src/app/login/login.component.ts`
+
+- `./src/app/login/login.component.html`
+
+- `./src/services/http.service.ts`
+
+- `./src/services/auth.service.ts`
+
+- `./src/app/app.component.html`
+
+- `./src/app/registration/registration.component.ts`
+
+- `./src/app/registration/registration.component.html`
+
+
+
+TestCases screenshots:
+
+
+
+
+
+
+
+POST:
+
+https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/register
+
+
+
+POST
+
+https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/login
+
+
+
+
+
+GET https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/events
+
+
+
+
+
+POST https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/event
+
+
+
+
+
+POST:
+
+https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/register
+
+
+
+POST
+
+https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/login
+
+
+
+
+
+GET https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/events
+
+
+
+
+
+POST https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/event
+
