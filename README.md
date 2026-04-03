@@ -1,379 +1,327 @@
-Problem Description
-swap_horiz
-Capstone Project - Event Management and Resource Allocation Platform
-03:00
-Hard
-Overview
-
-A comprehensive system for organizing and streamlining event planning activities, including task assignment, resource allocation, and client interaction, ensuring a seamless execution of events.
-
-Users of the System
-
-- **Event Planners**: Organize events, manage resources, and communicate with clients.
-
-- **Venue Staff**: Oversee venue preparation, maintenance, and scheduling.
-
-- **Clients**: Book events, provide specifications, and receive updates.
-
-
-
-Functional Requirements
-
-- **User Registration & Profile Management**: Users sign up, log in, and manage profiles with data validation and secure handling of information.
-
-- **Event Scheduling & Management**: Planners create, update, and manage event details, with authorization for modifications.
-
-- **Resource Allocation to Events**: Allocate resources like staff, equipment, and venues to specific events.
-
-- **Client Interaction Interface**: Clients can view event progress and communicate with planners.
-
-- **User Role-Based Authentication**: System identifies user roles to provide role-specific interfaces and functionalities.
-
-- **JWT Authorization**: Manages user sessions and secures API calls.
-
-- **RESTful API & Angular Service Layer**: Angular services interact with backend RESTful APIs for data exchange and UI updates.
-
-
-
-Technology Stack
-
-- **Backend**: Spring Boot, JPA, MySQL
-
-- **Frontend**: Angular
-
-- **Security**: Spring Security, JWT
-
-
-
-Key Points to Note
-
-- **Security**: Ensure data and API access are secured, especially personal client information.
-
-- **Scalability**: Capable of scaling for large events and increasing user base.
-
-- **User Interface Consistency**: Consistent UI/UX across various modules.
-
-- **Best Practices**: Adhere to coding best practices and ensure code maintainability.
-
-
-
-Backend Functionalities to be Built:-
-
-
-
-- **User Management**: Build endpoints for user registration, login, and profile management.
-
-- **Event Management**: CRUD operations for event details, ensuring data integrity.
-
-- **Resource Management**: Track and assign resources to events, manage inventory.
-
-- **Role-Based Authentication**: Define access levels for planners, staff, and clients.
-
-- **JWT Token Management**: Handle token generation, validation, and expiration.
-
-- Angular: Use Reactive form and declare form with name itemForm
-
-- Angular: Create a service with name AuthService and add these functions saveToken,SetRole,getRole,getLoginStatus,getToken,logout
-
-- Angular: Create a service with name HttpService and add these functions getOrderStatus ,updateCargoStatus,assignDriver,getAssignOrders,getCargo,getDrivers,addCargo,Login,registerUser
-
-
-
-Your task is to complete the following backend files:
-
-
-
-- `./src/main/java/com/edutech/eventmanagementsystem/config/SecurityConfig.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/controller/ClientController.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/controller/EventPlannerController.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/controller/RegisterAndLoginController.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/controller/StaffController.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/entity/Allocation.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/entity/Event.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/entity/Resource.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/entity/User.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/jwt/JwtRequestFilter.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/jwt/JwtUtil.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/repository/AllocationRepository.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/repository/EventRepository.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/repository/ResourceRepository.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/repository/UserRepository.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/service/EventService.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/service/ResourceService.java`
-
-- `./src/main/java/com/edutech/eventmanagementsystem/service/UserService.java`
-
-
-
-Entity Classes and their properties
-
-1. User
-
-   - Long userID (should be auto-generated and primary key)
-
-   - String username
-
-   - String password
-
-   - String email
-
-   - String role // role should be either "PLANNER", "STAFF" or "CLIENT"
-
-
-
-2. Event
-
-   - Long eventID (should be auto-generated and primary key)
-
-   - String title
-
-   - String description
-
-   - Date dateTime
-
-   - String location
-
-   - String status
-
-   - List allocations
-
-
-
-3. Allocation
-
-   - Long allocationID (should be auto-generated and primary key)
-
-   - Event event
-
-   - Resource resource
-
-   - int quantity
-
-   
-
-4. Resource
-
-   - Long resourceID (should be auto-generated and primary key)
-
-   - String name
-
-   - String type
-
-   - boolean availability
-
-
-
--> Manage the relationships between entities using appropriate annotations.
-
--> generate constructors, getters, and setters for the Property class as per standard Java conventions.
-
--> For example: getUserID(), setUserID(Long userID) etc.
-
-
-
-API Endpoints
-
-
-
-For Event Planners (Admin Side):
-
-
-
-- Register Planner: `POST /api/user/register`
-
-- Login Planner: `POST /api/user/login`
-
-- Create Event: `POST /api/planner/event`
-
-- View Events: `GET /api/planner/events`
-
-- Add Resource: `POST:/api/planner/resource`
-
-- Get Resources: `Get:/api/planner/resources`
-
-- Allocate Resources: `POST api/planner/allocate-resources?eventId=&resourceId=`
-
-
-
-For Venue Staff and Clients (User Side):
-
-
-
-- Register User: `POST /api/user/register`
-
-- Login User: `POST /api/user/login`
-
-- View Event Details: `GET /api/staff/event-details/{eventId}`
-
-- Update Event Setup: `PUT /api/staff/update-setup/{eventId}`
-
-- View Booking Details: `GET/api/client/booking-details/{eventId}`
-
-
-
-Security Configurations to be Implemented
-
-Set the following security configurations in the `SecurityConfig.java` file:
-
-- /api/user/register: accessible to everyone
-
-- /api/user/login: accessible to everyone
-
-- /api/planner/event: accessible to PLANNER authority
-
-- /api/planner/events: accessible to PLANNER authority
-
-- /api/planner/resource: accessible to PLANNER authority
-
-- /api/planner/resources: accessible to PLANNER authority
-
-- /api/planner/allocate-resources: accessible to PLANNER authority
-
-- /api/staff/event-details/{eventId}: accessible to STAFF authority
-
-- /api/staff/update-setup/{eventId}: accessible to STAFF authority
-
-- /api/client/booking-details/{eventId}: accessible to CLIENT authority
-
-- any other route: accessible to authenticated users
-
-
-
-Check the permissions with respect to authority such as hasAuthority("PLANNER") or hasAuthority("STAFF") or hasAuthority("CLIENT").
-
-If a user tries to access a route without the required authority, return a 403 Forbidden status.
-
-
-
-
-
-Frontend Functionalities to be Built
-
-
-
-- **Registration and Profile Management**: User-friendly registration and profile management for all user types.
-
-- **Event Dashboard**: Tools for planners to manage events and resources.
-
-- **Resource Allocation Interface**: Interface for planners to allocate resources to different events.
-
-- **Client Communication Interface**: Portal for clients to interact and get updates.
-
-- **Role-Specific UI Elements**: Tailor the UI to display options relevant to each role.
-
-- **Session Management with JWT**: Implement JWT token handling for session management.
-
-
-
-Your task is to complete the following frontend files:
-
-
-
-- `./src/app/add-resource/add-resource.component.ts`
-
-- `./src/app/add-resource/add-resource.component.html`
-
-- `./src/app/booking-details/booking-details.component.ts`
-
-- `./src/app/booking-details/booking-details.component.html`
-
-- `./src/app/create-event/create-event.component.ts`
-
-- `./src/app/create-event/create-event.component.html`
-
-- `./src/app/resource-allocate/resource-allocate.component.ts`
-
-- `./src/app/resource-allocate/resource-allocate.component.html`
-
-- `./src/app/view-events/view-events.component.ts`
-
-- `./src/app/view-events/view-events.component.html`
-
-- `./src/app/login/login.component.ts`
-
-- `./src/app/login/login.component.html`
-
-- `./src/services/http.service.ts`
-
-- `./src/services/auth.service.ts`
-
-- `./src/app/app.component.html`
-
-- `./src/app/registration/registration.component.ts`
-
-- `./src/app/registration/registration.component.html`
-
-
-
-TestCases screenshots:
-
-
-
-
-
-
-
-POST:
-
-https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/register
-
-
-
-POST
-
-https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/login
-
-
-
-
-
-GET https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/events
-
-
-
-
-
-POST https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/event
-
-
-
-
-
-POST:
-
-https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/register
-
-
-
-POST
-
-https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/user/login
-
-
-
-
-
-GET https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/events
-
-
-
-
-
-POST https://solvecompiler.lntedutech.com/project/6731/proxy/3000/api/planner/event
+To elevate EventMaster Pro from a standard capstone project to a production-ready application, the dashboard needs to act as a dynamic, role-based command center. Instead of just showing a static welcome screen, it should immediately surface actionable insights (KPIs) and provide a polished, modern UI that fits a premium event management theme (deep blues, gold accents, and clean card layouts).
+Here are the new features we are adding directly into the Dashboard:
+ * Role-Based KPI Cards: Planners will instantly see 'Total Active Events' and 'Total Resources Inventory'. Clients will see 'Upcoming Events Available'.
+ * Quick Action Hub: One-click routing to the most common tasks (Create Event, Allocate Resources, Live Ticketing) so users don't have to hunt through menus.
+ * Event Countdown / Highlight Reel: A visual feed of the latest events pulled dynamically from the database.
+Here is the complete code to upgrade the Dashboard module.
+1. dashbaord.component.ts (The Logic Layer)
+Location: client/src/app/dashbaord/dashbaord.component.ts
+We are adding reactive data fetching to calculate the KPI numbers on the fly.
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { HttpService } from '../../services/http.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-dashbaord',
+  templateUrl: './dashbaord.component.html',
+  styleUrls: ['./dashbaord.component.scss']
+})
+export class DashbaordComponent implements OnInit {
+  role: string | null = '';
+  username: string | null = '';
+  
+  // KPI Metrics
+  totalEvents: number = 0;
+  totalResources: number = 0;
+  recentEvents: any[] = [];
+
+  constructor(
+    private authService: AuthService, 
+    private httpService: HttpService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.role = this.authService.getRole();
+    // Assuming the username is stored in local storage during login, otherwise default to role
+    this.username = localStorage.getItem('username') || this.role; 
+
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    const currentRole = this.role?.toUpperCase();
+
+    if (currentRole === 'PLANNER') {
+      this.httpService.GetAllevents().subscribe((events: any[]) => {
+        this.totalEvents = events ? events.length : 0;
+        // Grab the 3 most recent events for the highlight reel
+        this.recentEvents = events ? events.slice(-3).reverse() : []; 
+      });
+
+      this.httpService.GetAllResources().subscribe((resources: any[]) => {
+        this.totalResources = resources ? resources.length : 0;
+      });
+    } 
+    else if (currentRole === 'CLIENT') {
+      this.httpService.getActiveEvents().subscribe((events: any[]) => {
+        this.totalEvents = events ? events.length : 0;
+        this.recentEvents = events ? events.slice(0, 3) : [];
+      });
+    }
+  }
+
+  navigateTo(route: string): void {
+    this.router.navigate([`/${route}`]);
+  }
+}
+
+2. dashbaord.component.html (The Themed UI)
+Location: client/src/app/dashbaord/dashbaord.component.html
+This implements a responsive CSS Grid with a premium look and feel.
+<div class="dashboard-container">
+  <header class="dashboard-hero">
+    <div class="hero-content">
+      <h1>Welcome back, <span class="highlight">{{ username | titlecase }}</span>!</h1>
+      <p *ngIf="role === 'PLANNER'">Your command center for EventMaster Pro. All systems go.</p>
+      <p *ngIf="role === 'CLIENT'">Discover and book your next unforgettable experience.</p>
+      <p *ngIf="role === 'STAFF'">View your upcoming venue setups and task allocations.</p>
+    </div>
+  </header>
+
+  <section class="kpi-grid" *ngIf="role === 'PLANNER' || role === 'CLIENT'">
+    <div class="kpi-card">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-data">
+        <h3>{{ role === 'PLANNER' ? 'Total Events' : 'Available Events' }}</h3>
+        <h2>{{ totalEvents }}</h2>
+      </div>
+    </div>
+
+    <div class="kpi-card" *ngIf="role === 'PLANNER'">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-data">
+        <h3>Resources Tracked</h3>
+        <h2>{{ totalResources }}</h2>
+      </div>
+    </div>
+  </section>
+
+  <div class="dashboard-main">
+    
+    <aside class="quick-actions" *ngIf="role === 'PLANNER'">
+      <h3>Quick Actions</h3>
+      <button class="action-btn primary" (click)="navigateTo('create-event')">
+        <span>➕</span> Create New Event
+      </button>
+      <button class="action-btn" (click)="navigateTo('add-resource')">
+        <span>📥</span> Add Resource
+      </button>
+      <button class="action-btn" (click)="navigateTo('resource-allocate')">
+        <span>🔗</span> Allocate Resources
+      </button>
+      <button class="action-btn alert" (click)="navigateTo('live-ticketing')">
+        <span>📡</span> Live Ticketing Hub
+      </button>
+    </aside>
+
+    <section class="highlight-reel" *ngIf="role === 'PLANNER' || role === 'CLIENT'">
+      <h3>{{ role === 'PLANNER' ? 'Recently Created Events' : 'Trending Events' }}</h3>
+      
+      <div class="empty-state" *ngIf="recentEvents.length === 0">
+        <p>No events found. Start building your portfolio!</p>
+      </div>
+
+      <div class="event-list">
+        <div class="event-ticket" *ngFor="let event of recentEvents">
+          <div class="ticket-date">
+            <span class="month">{{ event.dateTime | date:'MMM' }}</span>
+            <span class="day">{{ event.dateTime | date:'dd' }}</span>
+          </div>
+          <div class="ticket-info">
+            <h4>{{ event.title }}</h4>
+            <p>📍 {{ event.location }}</p>
+            <span class="status-badge" [ngClass]="event.status?.toLowerCase()">
+              {{ event.status || 'ACTIVE' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+3. dashbaord.component.scss (The Premium Theme Styling)
+Location: client/src/app/dashbaord/dashbaord.component.scss
+This styling uses deep navy blues (#0B192C), crisp whites, and vibrant gold/blue accents to give it a professional event-management aesthetic.
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.dashboard-hero {
+  background: linear-gradient(135deg, #0B192C 0%, #1A365D 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+
+  .highlight {
+    color: #FACC15; /* Gold accent */
+  }
+
+  p {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .kpi-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #2563EB;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+
+    .kpi-icon {
+      font-size: 2.5rem;
+      margin-right: 1.5rem;
+      background: #EFF6FF;
+      padding: 1rem;
+      border-radius: 50%;
+    }
+
+    .kpi-data {
+      h3 { margin: 0; font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;}
+      h2 { margin: 5px 0 0 0; font-size: 2rem; color: #0B192C; }
+    }
+  }
+}
+
+.dashboard-main {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick-actions {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+
+  h3 { margin-top: 0; margin-bottom: 1.5rem; color: #0B192C; border-bottom: 2px solid #F3F4F6; padding-bottom: 0.5rem;}
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #F8FAFC;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    span { margin-right: 10px; font-size: 1.2rem; }
+
+    &:hover { background: #E2E8F0; }
+    
+    &.primary {
+      background: #2563EB; color: white;
+      &:hover { background: #1D4ED8; }
+    }
+
+    &.alert {
+      background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;
+      &:hover { background: #FEE2E2; }
+    }
+  }
+}
+
+.highlight-reel {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  h3 { margin-top: 0; margin-bottom: 1.5rem; color: #0B192C; }
+
+  .empty-state {
+    text-align: center; color: #64748B; padding: 2rem; background: #F8FAFC; border-radius: 8px; border: 1px dashed #CBD5E1;
+  }
+
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .event-ticket {
+    display: flex;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+
+    &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+    .ticket-date {
+      background: #F8FAFC;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px dashed #CBD5E1;
+      min-width: 80px;
+
+      .month { color: #DC2626; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;}
+      .day { color: #0B192C; font-size: 1.8rem; font-weight: 800; line-height: 1;}
+    }
+
+    .ticket-info {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+
+      h4 { margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #0B192C; }
+      p { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #64748B; }
+
+      .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: #DCFCE7;
+        color: #166534;
+        text-transform: uppercase;
+      }
+    }
+  }
+}
 
